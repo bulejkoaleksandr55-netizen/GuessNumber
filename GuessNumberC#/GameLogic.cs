@@ -6,11 +6,12 @@ public class GameLogic
     public int MaxAttempts { get; }
     public int CurrentAttempt { get; private set; }
 
+    public event EventHandler<GameEventArgs>? OnMessage;
+
     public GameLogic(INumberGenerator generator, int min, int max, int maxAttempts)
     {
         TargetNumber = generator.Generate(min, max);
         MaxAttempts = maxAttempts;
-        CurrentAttempt = 0;
     }
 
     public bool MakeGuess(int guess)
@@ -20,12 +21,12 @@ public class GameLogic
 
         if (guess == TargetNumber)
         {
-            Console.WriteLine("Вы угадали!");
+            OnMessage?.Invoke(this, new GameEventArgs("Вы угадали!", attemptsLeft, true));
             return true;
         }
 
         string hint = guess < TargetNumber ? "Больше" : "Меньше";
-        Console.WriteLine($"Неверно. {hint}. Осталось попыток: {attemptsLeft}");
+        OnMessage?.Invoke(this, new GameEventArgs($"Неверно. {hint}", attemptsLeft));
         return false;
     }
 }
